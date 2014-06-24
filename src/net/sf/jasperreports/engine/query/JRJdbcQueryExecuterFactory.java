@@ -114,6 +114,7 @@ public class JRJdbcQueryExecuterFactory extends AbstractQueryExecuterFactory
 				java.math.BigDecimal.class.getName(),
 				java.lang.String.class.getName(), 
 				java.util.Date.class.getName(), 
+				java.util.UUID.class.getName(), 
 				java.sql.Date.class.getName(), 
 				java.sql.Timestamp.class.getName(), 
 				java.sql.Time.class.getName() };

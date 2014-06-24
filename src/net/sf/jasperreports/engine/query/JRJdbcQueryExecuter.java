@@ -25,6 +25,9 @@ package net.sf.jasperreports.engine.query;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,6 +39,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import javax.sql.rowset.CachedRowSet;
 
@@ -564,6 +568,10 @@ public class JRJdbcQueryExecuter extends JRAbstractQueryExecuter
 				statement.setString(parameterIndex, parameterValue.toString());
 			}
 		}
+		else if (java.util.UUID.class.isAssignableFrom(parameterType))
+		{
+			setUUID(parameterIndex, parameterValue, properties);
+		}
 		else if (java.sql.Timestamp.class.isAssignableFrom(parameterType))
 		{
 			setTimestamp(parameterIndex, parameterValue, properties);
@@ -589,6 +597,29 @@ public class JRJdbcQueryExecuter extends JRAbstractQueryExecuter
 		}
 	}
 
+	protected void setUUID(int parameterIndex, Object parameterValue, JRPropertiesHolder properties)
+			throws SQLException
+	{
+		if (parameterValue == null)
+		{
+			statement.setNull(parameterIndex, Types.JAVA_OBJECT);
+		}
+		else
+		{
+			try
+			{
+				ByteArrayOutputStream ba = new ByteArrayOutputStream(16);
+				DataOutputStream da = new DataOutputStream(ba);
+				da.writeLong(((java.util.UUID) parameterValue).getMostSignificantBits());
+				da.writeLong(((java.util.UUID) parameterValue).getLeastSignificantBits());
+				statement.setObject(parameterIndex, ba.toByteArray());
+			}
+			catch (IOException e)
+			{
+				throw new SQLException();
+			}
+		}
+	}
 
 	protected void setTimestamp(int parameterIndex, Object parameterValue, JRPropertiesHolder properties)
 			throws SQLException
